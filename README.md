@@ -1,6 +1,10 @@
 # Its just Ansible
 
-A bunch of Ansible roles that execute actions defined in a yaml file.
+- A bunch of Ansible roles 
+- a playbook the runs any role you define in a yaml file
+- a script that runs the playbook for each the roles you defined
+- For when Cloud-init, Terraform and baked images cant help you.
+- Seriously, try Cloud-init, Terraform and baked images first.
 
 ## Provision localhost
 
