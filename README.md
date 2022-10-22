@@ -1,6 +1,6 @@
-# Provisioner
+# Its just Ansible
 
-Ansible roles that execute actions defined in a yaml file.
+A bunch of Ansible roles that execute actions defined in a yaml file.
 
 ## Provision localhost
 
