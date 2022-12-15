@@ -16,7 +16,7 @@ WORKDIR /ansible
 
 RUN ansible-galaxy collection install community.general community.crypto ansible.posix
 
-CMD [ "ansible-playbook", "playbooks/main-program.yaml", \
+# CMD [ "ansible-playbook", "playbooks/main-program.yaml", \
        "--extra-vars", \
        "profile_path='/ansible/ansible_profiles/loop-flow/main.yaml' \
        profile_dir='/ansible/ansible_profiles/loop-flow/' \
