@@ -15,13 +15,3 @@ RUN mkdir /ansible
 WORKDIR /ansible
 
 RUN ansible-galaxy collection install community.general community.crypto ansible.posix
-
-# CMD [ "ansible-playbook", "playbooks/main-program.yaml", \
-       "--extra-vars", \
-       "profile_path='/ansible/ansible_profiles/loop-flow/main.yaml' \
-       profile_dir='/ansible/ansible_profiles/loop-flow/' \
-       ansible_user='max' \
-       squash='false' \
-       debug_output='true'"]
-
-# docker run --mount type=bind,source="$(pwd)",target=/ansible provisioner
