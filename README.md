@@ -1,4 +1,4 @@
-# Its just Ansible
+# Its just Ansible [![GitHub Release](https://img.shields.io/github/v/release/cloudymax/ansible-boilerplate?style=flat&labelColor=858585&color=6BF847&logo=GitHub&logoColor=white)](https://github.com/cloudymax/ansible-boilerplate/releases)
 
 - A bunch of Ansible roles 
 - a playbook the runs any role you define in a yaml file
