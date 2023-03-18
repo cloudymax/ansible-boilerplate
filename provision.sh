@@ -110,44 +110,6 @@ EOF
         exit
 }
 
-# check and install dependancies
-deps() {
-    if [[ ! -x "$(command -v ansible)" ]]; then
-        log "💥 ansible is not installed. Installing..."
-        sleep 1
-        umask 022
-        pip3 install ansible-core
-    else
-        log "✅ ansible is installed."
-    fi
-
-    if [[ "0" == "$(/home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection list |grep -c community.general)" ]]; then
-        log "💥 collection community.general is not installed. Installing..."
-        sleep 1
-        /home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection install community.general
-    else
-        log "✅ collection community.general installed."
-    fi
-    
-    if [[ "0" == "$(/home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection list |grep -c community.crypto)" ]]; then
-        log "💥 collection community.crypto is not installed. Installing..."
-        sleep 1
-        /home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection install community.crypto
-    else
-        log "✅ collection community.crypto installed."
-    fi
-
-    if [[ "0" == "$(/home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection list |grep -c ansible.posix)" ]]; then
-        log "💥 collection ansible.posix. Installing..."
-        sleep 1
-        /home/$ANSIBLE_USER/.local/bin/ansible-galaxy collection install ansible.posix
-    else
-        log "✅ collection ansible.posix installed."
-    fi
-    
-    log "🥳 All required utilities are installed."
-}
-
 # Logging method
 log() {
         echo >&2 -e "[$(date +"%Y-%m-%d %H:%M:%S")] ${1-}"
@@ -166,9 +128,8 @@ main() {
 
     # Profile to use for demo (absolute path)
     USER=$(whoami)
-    export WORKING_DIR=$(sudo find / -name "pxeless" -type d)
-    export DEMO_DIR="$WORKING_DIR/provisioner/ansible_profiles/$PROFILE"
-    export ANSIBLE_PLAYBOOK="$WORKING_DIR/provisioner/playbooks/main-program.yaml"
+    export DEMO_DIR="$(pwd)/ansible_profiles/$PROFILE"
+    export ANSIBLE_PLAYBOOK="playbooks/main-program.yaml"
 
     # Program verbosity
     export VERBOSITY=""
@@ -178,7 +139,12 @@ main() {
     for file in "${DEMO_DIR}"/*.yaml
     do
         #echo "running $file ..."
-        /home/${ANSIBLE_USER}/.local/bin/ansible-playbook $ANSIBLE_PLAYBOOK \
+        docker run --platform linux/amd64 -it \
+            -v $(pwd)/ansible:/ansible \
+            -v $(pwd)/test/friend:/id_rsa \
+            -e ARA_API_SERVER="http://192.168.50.100:8000" \
+            -e ARA_API_CLIENT=http \
+            ansible-runner ansible-playbook playbooks/$ANSIBLE_PLAYBOOK  \
             --extra-vars \
             "profile_path='${file}' \
             profile_dir='${DEMO_DIR}' \
