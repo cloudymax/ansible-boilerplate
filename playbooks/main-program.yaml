@@ -129,13 +129,6 @@
       - hostvars['localhost'].profile_json['Commands'] is defined
       - (hostvars['localhost'].profile_json['Commands']|length>0)
 
-# todo: since these should mostly not be dependancies, I want to look into caching or
-# multi-sessioning these to mke the build faster - hence the free strat
-
-- hosts: localhost
-  gather_facts: no
-
-  tasks:
   - name: git_clone
     include_role:
       name: git_clone
