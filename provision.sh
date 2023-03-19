@@ -124,34 +124,34 @@ die() {
 }
 
 main() {
-    deps
-
     # Profile to use for demo (absolute path)
     USER=$(whoami)
-    export DEMO_DIR="$(pwd)/ansible_profiles/$PROFILE"
-    export ANSIBLE_PLAYBOOK="playbooks/main-program.yaml"
+    export DEMO_DIR="ansible_profiles/$PROFILE"
+    export ANSIBLE_PLAYBOOK="main-program.yaml"
 
     # Program verbosity
-    export VERBOSITY=""
-    export DEBUG="false"
+    export VERBOSITY="-v"
+    export DEBUG="true"
     export SQUASH="false"
 
     for file in "${DEMO_DIR}"/*.yaml
     do
-        #echo "running $file ..."
+        echo "running $file ..."
         docker run --platform linux/amd64 -it \
-            -v $(pwd)/ansible:/ansible \
+            -v $(pwd):/ansible \
             -v $(pwd)/test/friend:/id_rsa \
             -e ARA_API_SERVER="http://192.168.50.100:8000" \
-            -e ARA_API_CLIENT=http \
-            ansible-runner ansible-playbook playbooks/$ANSIBLE_PLAYBOOK  \
-            --extra-vars \
-            "profile_path='${file}' \
-            profile_dir='${DEMO_DIR}' \
-            ansible_user='${ANSIBLE_USER}' \
-            squash='${SQUASH}' \
-            debug_output='${DEBUG}' \
-            $VERBOSITY"
+            -e ARA_API_CLIENT="http" \
+            ansible-runner ansible-playbook playbooks/main-program.yaml \
+            -i sample-inventory.yaml \
+            --extra-vars="ansible_ssh_user=testadmin" \
+            --extra-vars="ansible_user=testadmin" \
+            --extra-vars="ansible_ssh_private_key_file=test/friend" \
+            --extra-vars="profile_path=/ansible/${file}" \
+            --extra-vars="profile_dir=ansible_profiles/basic_desktop" \
+            --extra-vars="squash=${SQUASH}" \
+            --extra-vars="debug_output=${DEBUG}" \
+            "$VERBOSITY"
     done
 }
 

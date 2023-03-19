@@ -34,8 +34,8 @@
     set_fact:
       profile_dir: "{{ profile_dir }}"
 
-- hosts: All
-  gather_facts: yes
+- hosts: all
+  gather_facts: true
   
   tasks:
   #- name: Gather Node Details
