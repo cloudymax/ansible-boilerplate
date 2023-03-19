@@ -21,24 +21,17 @@ jobs:
         - Name: python3-distutils
         - Name: python3-pip
       - Repos:
-        - Source: https://github.com/Homebrew/brew
-          Destination: /home/friend/homebrew
-          Branch: "master"
         - Source: https://github.com/cloudymax/my-argo-and-kafka-example.git
           Destination: /home/friend/my-argo-and-kafka-example
           Branch: "main"
-      - Files:
-        - Name: permissions of repo
-          Path: /home/friend/homebrew
-          Owner: friend
-          Group: admin
-          Mode:  u=rwX,g=rX,o=rX
-          State: permissions
       - Path:
         - Name: brew
           key: PATH
-          value: '"/home/friend/homebrew/bin:/bin:/usr/bin:$PATH"' 
-      - Brew_Path: "/home/friend/homebrew/bin"
+          value: '"/home/linuxbrew/.linuxbrew/bin:/bin:/usr/bin:$PATH"' 
+      - Brew_Path: "/home/linuxbrew/.linuxbrew/bin"
+      - Commands:
+        - Command: |
+            NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - Brew:
         - Name: kind
           State: present
