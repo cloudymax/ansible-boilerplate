@@ -34,7 +34,7 @@
     set_fact:
       profile_dir: "{{ profile_dir }}"
 
-- hosts: localhost
+- hosts: All
   gather_facts: yes
   
   tasks:
