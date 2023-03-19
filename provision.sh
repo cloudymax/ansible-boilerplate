@@ -123,35 +123,60 @@ die() {
         exit "${CODE}"
 }
 
+install_yq(){
+    if [ ! -f "/usr/bin/yq" ]; then
+        VERSION="v4.31.1"
+        BINARY="yq_linux_amd64"
+        wget -O  $BINARY.tar.gz https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz
+        tar -xvf $BINARY.tar.gz
+        sudo mv $BINARY /usr/bin/yq
+        rm yq*
+    fi
+}
+
 main() {
+    install_yq
     # Profile to use for demo (absolute path)
     USER=$(whoami)
-    export DEMO_DIR="ansible_profiles/$PROFILE"
     export ANSIBLE_PLAYBOOK="main-program.yaml"
+    export FILE="main.yaml"
 
     # Program verbosity
-    export VERBOSITY="-v"
-    export DEBUG="true"
+    #export VERBOSITY="-v"
+    export DEBUG="false"
     export SQUASH="false"
 
-    for file in "${DEMO_DIR}"/*.yaml
+    export JOBS=$(yq '.jobs |length' $PROFILE/$FILE)
+    
+    for job in "${JOBS}"
     do
-        echo "running $file ..."
-        docker run --platform linux/amd64 -it \
-            -v $(pwd):/ansible \
-            -v $(pwd)/test/friend:/id_rsa \
-            -e ARA_API_SERVER="http://192.168.50.100:8000" \
-            -e ARA_API_CLIENT="http" \
-            ansible-runner ansible-playbook playbooks/main-program.yaml \
-            -i sample-inventory.yaml \
-            --extra-vars="ansible_ssh_user=testadmin" \
-            --extra-vars="ansible_user=testadmin" \
-            --extra-vars="ansible_ssh_private_key_file=test/friend" \
-            --extra-vars="profile_path=/ansible/${file}" \
-            --extra-vars="profile_dir=ansible_profiles/basic_desktop" \
-            --extra-vars="squash=${SQUASH}" \
-            --extra-vars="debug_output=${DEBUG}" \
-            "$VERBOSITY"
+        export CURRENT_JOB=$(( job - 1 ))
+        STEPS=$(yq '.jobs[env(CURRENT_JOB)].steps |length' $PROFILE/$FILE)
+    
+        for (( i = 0 ; i < "${STEPS}" ; i++ ));
+        do
+            export CURRENT_STEP=$i
+            STEP_NAME=$(yq -o=tsv '.jobs[env(CURRENT_JOB)].steps[env(CURRENT_STEP)] | keys' $PROFILE/$FILE)
+            DATA=$(yq '.jobs[env(CURRENT_JOB)].steps[env(CURRENT_STEP)]' $PROFILE/$FILE)
+            
+            echo -e "$DATA" |yq > "current_step.yaml"
+            echo "Running Step: $STEP_NAME ..."
+            
+            docker run --platform linux/amd64 -it \
+                -v $(pwd):/ansible \
+                -v $(pwd)/test/friend:/id_rsa \
+                -e ARA_API_SERVER="http://192.168.50.100:8000" \
+                -e ARA_API_CLIENT="http" \
+                ansible-runner ansible-playbook playbooks/${ANSIBLE_PLAYBOOK} \
+                -i ${INVENTORY} \
+                --extra-vars="ansible_ssh_user=testadmin" \
+                --extra-vars="ansible_user=testadmin" \
+                --extra-vars="ansible_ssh_private_key_file=test/friend" \
+                --extra-vars="profile_path=/ansible/current_step.yaml" \
+                --extra-vars="profile_dir=${PROFILE}" \
+                --extra-vars="squash=${SQUASH}" \
+                --extra-vars="debug_output=${DEBUG}" #"$VERBOSITY"
+        done
     done
 }
 

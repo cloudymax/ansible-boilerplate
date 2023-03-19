@@ -21,4 +21,4 @@ bash vm.sh deps
 time bash vm.sh create-cloud-vm test
 
 # Run a playbook
-bash provision.sh -au testadmin -p basic_desktop
+bash provision.sh -au testadmin -p ansible_profiles/loop-flow -i sample-inventory.yaml
