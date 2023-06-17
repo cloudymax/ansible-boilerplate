@@ -1,4 +1,4 @@
-FROM ubuntu:latest as ansible
+FROM ubuntu:kinetic as ansible
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ANSIBLE_NOCOWS=1
