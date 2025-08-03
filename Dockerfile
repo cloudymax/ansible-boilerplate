@@ -1,4 +1,4 @@
-FROM ubuntu:latest as ansible
+FROM ubuntu:24.10 as ansible
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ANSIBLE_NOCOWS=1
